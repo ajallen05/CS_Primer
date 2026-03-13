@@ -65,7 +65,11 @@ def minimax(is_maximizing):
 
             board[r, c] = "x"
             score = minimax(False)
+
             board[r, c] = "_"
+
+            if score==1:
+                return 1
 
 
             best = max(best, score)
@@ -81,6 +85,9 @@ def minimax(is_maximizing):
             board[r, c] = "o"
             score = minimax(True)
             board[r, c] = "_"
+
+            if score==-1:
+                return -1
 
 
             best = min(best, score)
@@ -106,12 +113,16 @@ def best_move(ch):
         if is_maximizing:
 
 
-
+            if score==1:
+                return (r,c)
             if score > best_score:
                 best_score = score
                 best_pos = (r, c)
 
         else:
+
+            if score==-1:
+                return (r,c)
 
 
 
