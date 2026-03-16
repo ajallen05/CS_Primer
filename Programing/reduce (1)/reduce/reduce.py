@@ -88,13 +88,10 @@ def my_map(f, xs):
     [1, 4, 9, 16]
     """
 
-    temp = []
 
-    for e in xs:
 
-        temp.append(f(e))
 
-    return temp
+    return [f(i) for i in xs]
 
         
 
@@ -112,14 +109,9 @@ def my_filter(f, xs):
     []
     """
 
-    ans = []
+    return [i for i in xs if f(i)]
 
-    for i in xs:
 
-        if f(i):
-            ans.append(i)
-
-    return ans
 
 
 
@@ -133,14 +125,12 @@ def my_zip(*iters):
     >>> my_zip('abc', 'def', (1, 2, 3))
     [['a', 'd', 1], ['b', 'e', 2], ['c', 'f', 3]]
     """
-    ans = []
-    for i in iters:
+    ans = [[] for i in iters]
 
-        ans.append([])
 
-    for ind,lis in enumerate(iters):
+    for ind in range(len(iters)):
 
-        for elem in iters:
+        for i,elem in enumerate(iters):
             ans[ind].append(elem[ind])
 
     return ans
