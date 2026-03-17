@@ -178,10 +178,14 @@ def my_unique(lis):
 
     def g(xs,x):
 
+        if x not in xs:
+            xs.append(x)
+        return xs
 
-        return [i for i in xs if i!=x]+[x]
+
+        
     
-    return sorted(reduce(g,lis,lis))
+    return sorted(reduce(g,lis,[]))
 
 
 
