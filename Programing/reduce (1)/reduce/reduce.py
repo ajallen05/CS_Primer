@@ -44,23 +44,14 @@ def reduce(f, xs, init=None):
 
     """
 
-
-    for i in xs:
-
-        if init is None:
-
-            init = i
-            continue
-
-        init = f(init,i)
+    xs = iter(xs)
+    init = next(xs) if init is None else init
+    
+    for elem in xs:
+        init = f(init,elem)
 
     return init
 
-
-
-
-
-  
 
 
 def product(nums):
@@ -86,12 +77,31 @@ def my_map(f, xs):
 
     >>> my_map(lambda x: x * x, [1, 2, 3, 4])
     [1, 4, 9, 16]
+    >>> my_map(lambda x:x*x,{1:1,2:2,3:3})
+    [1, 4, 9]
+    """
+
+    def g(lis,i):
+
+        lis.append(f(i))
+        return lis
+    
+    return reduce(g,xs,[])
+
+
+    """
+
+        my implementation:
+
+            return [f(i) for i in xs]
+    
     """
 
 
 
 
-    return [f(i) for i in xs]
+
+
 
         
 
@@ -109,7 +119,24 @@ def my_filter(f, xs):
     []
     """
 
-    return [i for i in xs if f(i)]
+    def g(xs,x):
+
+        if f(x):
+            xs.append(x)
+        return xs
+    
+    return reduce(g,xs,[])
+
+
+    """
+
+        my implementation:
+
+        return [i for i in xs if f(i)]
+    
+    """
+
+
 
 
 
@@ -125,15 +152,61 @@ def my_zip(*iters):
     >>> my_zip('abc', 'def', (1, 2, 3))
     [['a', 'd', 1], ['b', 'e', 2], ['c', 'f', 3]]
     """
-    ans = [[] for i in iters]
+    ans = [[] for j in iters]
 
 
-    for ind in range(len(iters)):
-
+    def g(ans,iters):
         for i,elem in enumerate(iters):
-            ans[ind].append(elem[ind])
+            ans[i].append(elem)
 
-    return ans
+        return ans
+
+    
+    return reduce(g,iters,ans)
+
+
+def my_unique(lis):
+
+    """ My implementation of the unique
+
+    >>> my_unique([1,2,3,1,2,5,5,5,5,7,0,0,0,9])
+    [0, 1, 2, 3, 5, 7, 9]
+    
+    
+    """
+
+
+    def g(xs,x):
+
+
+        return [i for i in xs if i!=x]+[x]
+    
+    return sorted(reduce(g,lis,lis))
+
+
+
+def flatten(lis):
+
+    """ My implementation of flatten
+
+    >>> flatten([[1],["a","b",2],range(3,10)])
+    [1, 'a', 'b', 2, 3, 4, 5, 6, 7, 8, 9]
+
+    """
+
+    def g(xs,x):
+
+       return xs+[i for i in x]
+    
+    return reduce(g,lis,[])
+
+
+
+
+
+
+
+
 
 
 
