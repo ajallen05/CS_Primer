@@ -23,6 +23,9 @@ then we apply init to the second element in the function and return the value
 
 """
 
+from collections.abc import Iterable
+
+
 def reduce(f, xs, init=None):
     """
     Apply the function f cummulatively to the items of xs, reducing to a single value.
@@ -51,6 +54,25 @@ def reduce(f, xs, init=None):
         init = f(init,elem)
 
     return init
+
+
+    """  
+
+        My implementation
+
+         xs,init = (xs,init) if init is not None else (xs[1:],xs[0])
+
+         for i in xs:
+         
+            init = f(init,i)
+
+        return init
+
+
+
+
+    
+    """
 
 
 
@@ -152,7 +174,6 @@ def my_zip(*iters):
     >>> my_zip('abc', 'def', (1, 2, 3))
     [['a', 'd', 1], ['b', 'e', 2], ['c', 'f', 3]]
     """
-    ans = [[] for j in iters]
 
 
     def g(ans,iters):
@@ -162,45 +183,156 @@ def my_zip(*iters):
         return ans
 
     
-    return reduce(g,iters,ans)
+    return reduce(g,iters,[[] for j in iters])
 
 
 def my_unique(lis):
+    """
+    Returns sorted unique elements from the list.
 
-    """ My implementation of the unique
-
+    Basic case
     >>> my_unique([1,2,3,1,2,5,5,5,5,7,0,0,0,9])
     [0, 1, 2, 3, 5, 7, 9]
+
+    Already unique
+    >>> my_unique([1, 2, 3])
+    [1, 2, 3]
+
+    Unsorted input
+    >>> my_unique([5, 3, 1, 4, 2])
+    [1, 2, 3, 4, 5]
+
+    Single element
+    >>> my_unique([42])
+    [42]
+
+    Empty list
+    >>> my_unique([])
+    []
+
+    Negative numbers
+    >>> my_unique([-1, -2, -1, 0, 1])
+    [-2, -1, 0, 1]
+
+    Mixed integers and booleans (tricky)
+    >>> my_unique([1, True, 0, False])
+    [0, 1]
+
+    Floats and ints
+    >>> my_unique([1, 1.0, 2, 2.0, 3])
+    [1, 2, 3]
+
+    Strings
+    >>> my_unique(["b", "a", "b", "c"])
+    ['a', 'b', 'c']
+
+    Mixed comparable types (should work if comparable)
+    >>> my_unique(["apple", "banana", "apple"])
+    ['apple', 'banana']
+
+    Large duplicates
+    >>> my_unique([1]*100 + [2]*50 + [3]*10)
+    [1, 2, 3]
+
+    Edge: None values
+    >>> my_unique([None, None, 1])
+    Bruh
+
+
+    Edge: unorderable types (depends on your implementation)
+    >>> my_unique([1, "a"])
+    Bruh
     
-    
+ 
     """
+    try:
 
 
-    def g(xs,x):
-
-        if x not in xs:
-            xs.append(x)
-        return xs
+        def g(xs,x):
 
 
+            if x not in xs:
+                xs.append(x)
+            return xs
         
+        return sorted(reduce(g,flatten(lis),[]))
     
-    return sorted(reduce(g,lis,[]))
+    except Exception as e:
+        print("Bruh")
 
 
 
 def flatten(lis):
+    """
+    Flattens a nested iterable into a single list.
 
-    """ My implementation of flatten
+    Basic case
+    >>> flatten([[1], ["a", "b", 2], range(3, 6)])
+    [1, 'a', 'b', 2, 3, 4, 5]
 
-    >>> flatten([[1],["a","b",2],range(3,10)])
-    [1, 'a', 'b', 2, 3, 4, 5, 6, 7, 8, 9]
+    Already flat
+    >>> flatten([1, 2, 3])
+    [1, 2, 3]
 
+    Deep nesting
+    >>> flatten([1, [2, [3, [4, [5]]]]])
+    [1, 2, 3, 4, 5]
+
+    Empty structures
+    >>> flatten([])
+    []
+    >>> flatten([[], [[]], [[[]]]])
+    []
+
+    Mixed types
+    >>> flatten([1, "abc", [2, "de"]])
+    [1, 'abc', 2, 'de']
+
+    Tuples and lists mixed
+    >>> flatten([1, (2, 3), [4, (5, 6)]])
+    [1, 2, 3, 4, 5, 6]
+
+    Range objects
+    >>> flatten([range(3), [3, 4]])
+    [0, 1, 2, 3, 4]
+
+    Single element nested many times
+    >>> flatten([[[[[1]]]]])
+    [1]
+
+    Boolean and None
+    >>> flatten([True, [False, [None]]])
+    [True, False, None]
+
+    Edge case: string handling (depends on your design)
+    >>> flatten(["hello", ["world"]])
+    ['hello', 'world']
     """
 
     def g(xs,x):
+       
+       
+       
 
-       return xs+[i for i in x]
+       if not isinstance(x, Iterable) or  isinstance(x, (str, bytes)):
+           xs.append(x)
+           return xs
+       
+       ans = []
+
+
+       for i in x:
+            
+           if isinstance(i, Iterable) and not isinstance(i, (str, bytes)):
+                ans.extend(g([],i))
+           else:
+               ans.append(i)
+
+       xs.extend(ans)
+
+       return xs
+                
+               
     
     return reduce(g,lis,[])
 
@@ -217,4 +349,7 @@ def flatten(lis):
 if __name__ == "__main__":
     import doctest
     doctest.testmod()
+    flatten([[1],["a","b",2],range(3,10)])
+
+
     print('ok')
