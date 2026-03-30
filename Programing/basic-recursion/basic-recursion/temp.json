@@ -1,0 +1,131 @@
+{
+  "pipeline_id": "fraud_detection_v42",
+  "run_id": "run_2026_03_30_001",
+  "status": "completed",
+  "created_at": "2026-03-30T18:10:00Z",
+
+  "data_ingestion": {
+    "source": {
+      "type": "s3",
+      "bucket": "ml-prod-datasets",
+      "path": "fraud/raw/2026/03/30/"
+    },
+    "records_loaded": 2500000,
+    "schema_version": "v3.1",
+    "missing_value_report": {
+      "amount": 120,
+      "merchant_id": 0,
+      "device_hash": 14
+    }
+  },
+
+  "feature_engineering": {
+    "version": "fe_2.4",
+    "steps": [
+      {
+        "name": "normalize_amount",
+        "type": "standard_scaler",
+        "columns": ["amount"]
+      },
+      {
+        "name": "encode_country",
+        "type": "target_encoding",
+        "columns": ["country"]
+      },
+      {
+        "name": "session_velocity",
+        "type": "custom_feature",
+        "description": "Transactions per user in last 10 minutes"
+      }
+    ],
+    "feature_store_write": {
+      "table": "feature_store.fraud_features",
+      "rows_written": 2500000
+    }
+  },
+
+  "train_validation_split": {
+    "strategy": "time_based",
+    "train_size": 0.7,
+    "validation_size": 0.15,
+    "test_size": 0.15
+  },
+
+  "training": {
+    "model_type": "xgboost",
+    "hyperparameters": {
+      "max_depth": 8,
+      "learning_rate": 0.05,
+      "n_estimators": 500,
+      "subsample": 0.9
+    },
+    "distributed": {
+      "enabled": true,
+      "workers": 8,
+      "instance_type": "g5.2xlarge"
+    },
+    "training_time_seconds": 842
+  },
+
+  "evaluation": {
+    "metrics": {
+      "accuracy": 0.982,
+      "precision": 0.944,
+      "recall": 0.901,
+      "f1_score": 0.922,
+      "roc_auc": 0.991
+    },
+    "confusion_matrix": {
+      "tp": 901,
+      "fp": 53,
+      "tn": 9812,
+      "fn": 99
+    },
+    "fairness_checks": {
+      "region_bias_score": 0.03,
+      "gender_bias_score": 0.01,
+      "passed": true
+    }
+  },
+
+  "model_registry": {
+    "model_name": "fraud_xgb_classifier",
+    "version": "v42",
+    "artifact_path": "s3://ml-models/fraud/v42/model.pkl",
+    "registered": true
+  },
+
+  "deployment": {
+    "environment": "production",
+    "endpoint": "fraud-api-v42",
+    "deployment_strategy": "blue_green",
+    "traffic_split": {
+      "old_model": 10,
+      "new_model": 90
+    }
+  },
+
+  "monitoring": {
+    "latency_ms_p95": 42,
+    "prediction_drift": {
+      "psi_score": 0.11,
+      "threshold": 0.2,
+      "status": "healthy"
+    },
+    "feature_drift": {
+      "amount": 0.08,
+      "country": 0.03,
+      "device_hash": 0.17
+    },
+    "alerts": []
+  },
+
+  "retraining_policy": {
+    "trigger": [
+      "psi_score > 0.2",
+      "recall < 0.85",
+      "weekly_schedule"
+    ],
+    "last_retrained": "2026-03-24T00:00:00Z"
+  }
+}

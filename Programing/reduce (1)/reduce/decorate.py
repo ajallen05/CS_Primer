@@ -17,10 +17,15 @@ def pretty_print(fn):
 
 
         try:
-            print(f"The output: {fn(*args,**kwargs)}")
+            val = fn(*args,**kwargs)
+            print(f"The output: {val}")
+            print()
+            return val
         except Exception as e:
             print(f"Error: {e}")
         print()
+            
+        
 
     return wrapper
 
@@ -42,15 +47,15 @@ def square(n,lim=1e16):
     return n*n
 
 @pretty_print
-def fib(n,start = 0,end=1):
+def fib(n,s = 0,t=1):
 
     """
 
         Used to find the Nth fibonacci number using iteration
 
-        n = the position
-        start = where we start
-        end = the number after end in the series
+        n = the end  position
+        s = where we start
+        t = the number after start in the series
     
     """
 
@@ -58,10 +63,10 @@ def fib(n,start = 0,end=1):
 
     for i in range(n):
 
-        temp = start
+        temp = s
 
-        start = end
-        end+=temp
+        s = t
+        t+=temp
 
     return temp
 
@@ -86,7 +91,7 @@ def main():
     """
 
     square(1000000,1000)
-    fib(11,start = 3,end=5)
+    fib(11,s = 3,t=5)
     cube(3)
 
 
